@@ -1,3 +1,43 @@
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.input-box {
+  width: 260px;
+  padding: 12px;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-box:focus {
+  border-color: #4f8cff;
+}
+.continue-btn {
+  margin-top: 24px;
+  background: linear-gradient(90deg, #1976d2 0%, #4f8cff 100%);
+  color: #fff;
+  border: none;
+  outline: none;
+  padding: 12px 40px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.continue-btn:hover {
+  background: linear-gradient(90deg, #4f8cff 0%, #1976d2 100%);
+  transform: scale(1.05);
+}
 .App {
   text-align: center;
 }
@@ -26,6 +66,48 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.tab-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+
+.tab-container button {
+  background: #fff;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+  outline: none;
+  padding: 12px 32px;
+  margin: 0 8px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+
+.tab-container button.active {
+  background: linear-gradient(90deg, #1976d2 0%, #4f8cff 100%);
+  color: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+
+.tab-container button:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+  transform: scale(1.04);
+}
+
+.tab-content {
+  margin-top: 32px;
+  font-size: 1.2rem;
 }
 
 @keyframes App-logo-spin {

@@ -1,11 +1,10 @@
-
-
 import React, { useState, useRef } from 'react';
 import './App.css';
 import { startMobileId, checkMobileId, startSmartId, checkSmartId } from './api';
 import MobileIdTab from './controls/MobileIdTab';
 import SmartIdTab from './controls/SmartIdTab';
 import IdCardTab from './controls/IdCardTab';
+import { getOidcParams } from './utils/oidcParams';
 const COUNTRY_LIST = ['Estonia', 'Latvia', 'Lithuania'];
 
 function App() {
@@ -23,6 +22,8 @@ function App() {
   const [smartStatus, setSmartStatus] = useState('');
   const pollingRef = useRef(null);
   const smartPollingRef = useRef(null);
+  const oidcParams = getOidcParams();
+  const returnUri = oidcParams['return_uri'] || oidcParams['redirect_uri'] || oidcParams['returnUrl'] || oidcParams['redirectUrl'];
 
   // Synchronize personal code between MobileId and SmartId tabs
   const handleTabChange = (tab) => {
@@ -60,6 +61,9 @@ function App() {
           if (checkData.complete) {
             setMobileStatus('Authentication complete!');
             clearInterval(pollingRef.current);
+            if (checkData.redirectUrl) {
+              window.location.href = checkData.redirectUrl;
+            }
           } else {
             setMobileStatus('Waiting for authentication...');
           }
@@ -88,6 +92,9 @@ function App() {
           if (checkData.complete) {
             setSmartStatus('Authentication complete!');
             clearInterval(smartPollingRef.current);
+            if (checkData.redirectUrl) {
+              window.location.href = checkData.redirectUrl;
+            }
           } else {
             setSmartStatus('Waiting for authentication...');
           }
@@ -97,6 +104,47 @@ function App() {
       }, 5000);
     } catch (err) {
       setSmartStatus('Error contacting backend');
+    }
+  };
+
+  const handleMobileCancel = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+    setMobileStatus('Authentication cancelled');
+    setMobileCode('');
+  };
+
+  const handleSmartCancel = () => {
+    if (smartPollingRef.current) {
+      clearInterval(smartPollingRef.current);
+      smartPollingRef.current = null;
+    }
+    setSmartStatus('Authentication cancelled');
+    setSmartCode('');
+  };
+
+  const handleMobileReturn = () => {
+    if (returnUri) {
+      window.location.href = returnUri;
+    } else {
+      setMobileStatus('');
+      setMobileCode('');
+      setMobileSessionId('');
+      setMobilePersonalCode('');
+      setMobilePhoneNumber('');
+    }
+  };
+
+  const handleSmartReturn = () => {
+    if (returnUri) {
+      window.location.href = returnUri;
+    } else {
+      setSmartStatus('');
+      setSmartCode('');
+      setSmartSessionId('');
+      setSmartPersonalCode('');
     }
   };
 
@@ -116,6 +164,8 @@ function App() {
             mobileCode={mobileCode}
             mobileStatus={mobileStatus}
             handleMobileContinue={handleMobileContinue}
+            handleMobileCancel={handleMobileCancel}
+            handleMobileReturn={handleMobileReturn} // Pass return handler
           />
         );
       case 'SmartId':
@@ -128,6 +178,8 @@ function App() {
             smartCode={smartCode}
             smartStatus={smartStatus}
             handleSmartContinue={handleSmartContinue}
+            handleSmartCancel={handleSmartCancel}
+            handleSmartReturn={handleSmartReturn} // Pass return handler
           />
         );
       default:

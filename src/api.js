@@ -1,23 +1,28 @@
 // API utility for authentication requests
+import { appendOidcParamsToUrl } from './utils/oidcParams';
 
 export async function startMobileId({ country, personalCode, phoneNumber }) {
   const params = new URLSearchParams({ country, personalCode, phoneNumber });
-  const res = await fetch(`/mobileid/start?${params.toString()}`, { method: 'POST' });
+  const url = appendOidcParamsToUrl(`/mobileid/start?${params.toString()}`);
+  const res = await fetch(url, { method: 'POST' });
   return res.json();
 }
 
 export async function checkMobileId(sessionId) {
-  const res = await fetch(`/mobileid/check?sessionId=${sessionId}`);
+  const url = appendOidcParamsToUrl(`/mobileid/check?sessionId=${sessionId}`);
+  const res = await fetch(url);
   return res.json();
 }
 
 export async function startSmartId({ country, personalCode }) {
   const params = new URLSearchParams({ country, personalCode });
-  const res = await fetch(`/smartid/start?${params.toString()}`, { method: 'POST' });
+  const url = appendOidcParamsToUrl(`/smartid/start?${params.toString()}`);
+  const res = await fetch(url, { method: 'POST' });
   return res.json();
 }
 
 export async function checkSmartId(sessionId) {
-  const res = await fetch(`/smartid/check?sessionId=${sessionId}`);
+  const url = appendOidcParamsToUrl(`/smartid/check?sessionId=${sessionId}`);
+  const res = await fetch(url);
   return res.json();
 }

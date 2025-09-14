@@ -10,8 +10,12 @@ export default function SmartIdTab(props) {
     setSmartPersonalCode,
     smartCode,
     smartStatus,
-    handleSmartContinue
+    handleSmartContinue,
+    handleSmartCancel,
+    handleSmartReturn // Added return handler
   } = props;
+
+  const isCancelled = smartStatus === 'Authentication cancelled';
 
   return (
     <div>
@@ -24,31 +28,39 @@ export default function SmartIdTab(props) {
       {smartStatus && (
         <div style={{marginTop: '8px', color: '#1976d2'}}>{smartStatus}</div>
       )}
-      <div className="input-group" style={{marginTop: '16px', marginBottom: 0, display: 'flex', alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
-        <label style={{width: '140px', textAlign: 'right', marginRight: '16px'}}>Country</label>
-        <select
-          className="dropdown-box"
-          value={smartCountry}
-          onChange={e => setSmartCountry(e.target.value)}
-          style={{width: '220px'}}
-        >
-          {COUNTRY_LIST.map(country => (
-            <option key={country} value={country}>{country}</option>
-          ))}
-        </select>
-      </div>
-      <div className="input-group" style={{display: 'flex', alignItems: 'center', marginTop: '8px', flexDirection: 'row', justifyContent: 'center'}}>
-        <label style={{width: '140px', textAlign: 'right', marginRight: '16px'}}>Personal Code</label>
-        <input
-          type="text"
-          placeholder="Personal Code"
-          className="input-box"
-          value={smartPersonalCode}
-          onChange={e => setSmartPersonalCode(e.target.value)}
-          style={{width: '220px'}}
-        />
-      </div>
-      <button className="continue-btn" onClick={handleSmartContinue}>Continue</button>
+      {!isCancelled && (
+        <>
+          <div className="input-group" style={{marginTop: '16px', marginBottom: 0, display: 'flex', alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
+            <label style={{width: '140px', textAlign: 'right', marginRight: '16px'}}>Country</label>
+            <select
+              className="dropdown-box"
+              value={smartCountry}
+              onChange={e => setSmartCountry(e.target.value)}
+              style={{width: '220px'}}
+            >
+              {COUNTRY_LIST.map(country => (
+                <option key={country} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group" style={{display: 'flex', alignItems: 'center', marginTop: '8px', flexDirection: 'row', justifyContent: 'center'}}>
+            <label style={{width: '140px', textAlign: 'right', marginRight: '16px'}}>Personal Code</label>
+            <input
+              type="text"
+              placeholder="Personal Code"
+              className="input-box"
+              value={smartPersonalCode}
+              onChange={e => setSmartPersonalCode(e.target.value)}
+              style={{width: '220px'}}
+            />
+          </div>
+          <button className="continue-btn" onClick={handleSmartContinue}>Continue</button>
+          <button className="cancel-btn" onClick={handleSmartCancel}>Cancel</button>
+        </>
+      )}
+      {isCancelled && (
+        <button className="continue-btn" onClick={handleSmartReturn}>Return</button>
+      )}
     </div>
   );
 }

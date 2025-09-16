@@ -22,6 +22,10 @@ function App() {
   const [smartStatus, setSmartStatus] = useState('');
   const pollingRef = useRef(null);
   const smartPollingRef = useRef(null);
+  const mobilePollingActiveRef = useRef(false);
+  const mobilePollInFlightRef = useRef(false);
+  const smartPollingActiveRef = useRef(false);
+  const smartPollInFlightRef = useRef(false);
   const oidcParams = getOidcParams();
   const returnUri = oidcParams['return_uri'] || oidcParams['redirect_uri'] || oidcParams['returnUrl'] || oidcParams['redirectUrl'];
 
@@ -44,6 +48,84 @@ function App() {
     setActiveTab(tab);
   };
 
+  const scheduleNextMobilePoll = (sessionId) => {
+    if (!mobilePollingActiveRef.current) return;
+    pollingRef.current = setTimeout(() => doMobilePoll(sessionId), 4000);
+  };
+
+  const doMobilePoll = async (sessionId) => {
+    if (!mobilePollingActiveRef.current || mobilePollInFlightRef.current) return;
+    mobilePollInFlightRef.current = true;
+    try {
+      const checkData = await checkMobileId(sessionId);
+      if (checkData.error) {
+        setMobileStatus(`Error: ${checkData.error}`);
+        mobilePollingActiveRef.current = false;
+        return;
+      }
+      if (checkData.complete) {
+        setMobileStatus('Authentication complete!');
+        mobilePollingActiveRef.current = false;
+        if (checkData.redirectUrl) {
+          window.location.href = checkData.redirectUrl;
+          return;
+        }
+      } else {
+        setMobileStatus('Waiting for authentication...');
+        scheduleNextMobilePoll(sessionId);
+      }
+    } catch {
+      setMobileStatus('Error checking status');
+      scheduleNextMobilePoll(sessionId); // optional retry
+    } finally {
+      mobilePollInFlightRef.current = false;
+    }
+  };
+
+  const startMobilePolling = (sessionId) => {
+    mobilePollingActiveRef.current = true;
+    doMobilePoll(sessionId);
+  };
+
+  const scheduleNextSmartPoll = (sessionId) => {
+    if (!smartPollingActiveRef.current) return;
+    smartPollingRef.current = setTimeout(() => doSmartPoll(sessionId), 4000);
+  };
+
+  const doSmartPoll = async (sessionId) => {
+    if (!smartPollingActiveRef.current || smartPollInFlightRef.current) return;
+    smartPollInFlightRef.current = true;
+    try {
+      const checkData = await checkSmartId(sessionId);
+      if (checkData.error) {
+        setSmartStatus(`Error: ${checkData.error}`);
+        smartPollingActiveRef.current = false;
+        return;
+      }
+      if (checkData.complete) {
+        setSmartStatus('Authentication complete!');
+        smartPollingActiveRef.current = false;
+        if (checkData.redirectUrl) {
+          window.location.href = checkData.redirectUrl;
+          return;
+        }
+      } else {
+        setSmartStatus('Waiting for authentication...');
+        scheduleNextSmartPoll(sessionId);
+      }
+    } catch {
+      setSmartStatus('Error checking status');
+      scheduleNextSmartPoll(sessionId); // optional retry
+    } finally {
+      smartPollInFlightRef.current = false;
+    }
+  };
+
+  const startSmartPolling = (sessionId) => {
+    smartPollingActiveRef.current = true;
+    doSmartPoll(sessionId);
+  };
+
   const handleMobileContinue = async () => {
     try {
       const data = await startMobileId({
@@ -51,27 +133,21 @@ function App() {
         personalCode: mobilePersonalCode,
         phoneNumber: mobilePhoneNumber
       });
-      setMobileSessionId(data.sessionId);
-      setMobileCode(data.code);
-      setMobileStatus('');
-      if (pollingRef.current) clearInterval(pollingRef.current);
-      pollingRef.current = setInterval(async () => {
-        try {
-          const checkData = await checkMobileId(data.sessionId);
-          if (checkData.complete) {
-            setMobileStatus('Authentication complete!');
-            clearInterval(pollingRef.current);
-            if (checkData.redirectUrl) {
-              window.location.href = checkData.redirectUrl;
-            }
-          } else {
-            setMobileStatus('Waiting for authentication...');
-          }
-        } catch {
-          setMobileStatus('Error checking status');
-        }
-      }, 5000);
-    } catch (err) {
+      if (data?.error) {
+        setMobileStatus(`Error: ${data.error}`);
+        return;
+      }
+      if (data && data.sessionId) {
+        setMobileSessionId(data.sessionId);
+        setMobileCode(data.code);
+        setMobileStatus('');
+        if (pollingRef.current) clearTimeout(pollingRef.current);
+        mobilePollingActiveRef.current = false;
+        startMobilePolling(data.sessionId);
+      } else {
+        setMobileStatus('Failed to start MobileId authentication.');
+      }
+    } catch {
       setMobileStatus('Error contacting backend');
     }
   };
@@ -82,34 +158,29 @@ function App() {
         country: smartCountry,
         personalCode: smartPersonalCode
       });
-      setSmartSessionId(data.sessionId);
-      setSmartCode(data.code);
-      setSmartStatus('');
-      if (smartPollingRef.current) clearInterval(smartPollingRef.current);
-      smartPollingRef.current = setInterval(async () => {
-        try {
-          const checkData = await checkSmartId(data.sessionId);
-          if (checkData.complete) {
-            setSmartStatus('Authentication complete!');
-            clearInterval(smartPollingRef.current);
-            if (checkData.redirectUrl) {
-              window.location.href = checkData.redirectUrl;
-            }
-          } else {
-            setSmartStatus('Waiting for authentication...');
-          }
-        } catch {
-          setSmartStatus('Error checking status');
-        }
-      }, 5000);
-    } catch (err) {
+      if (data?.error) {
+        setSmartStatus(`Error: ${data.error}`);
+        return;
+      }
+      if (data && data.sessionId) {
+        setSmartSessionId(data.sessionId);
+        setSmartCode(data.code);
+        setSmartStatus('');
+        if (smartPollingRef.current) clearTimeout(smartPollingRef.current);
+        smartPollingActiveRef.current = false;
+        startSmartPolling(data.sessionId);
+      } else {
+        setSmartStatus('Failed to start SmartId authentication.');
+      }
+    } catch {
       setSmartStatus('Error contacting backend');
     }
   };
 
   const handleMobileCancel = () => {
+    mobilePollingActiveRef.current = false;
     if (pollingRef.current) {
-      clearInterval(pollingRef.current);
+      clearTimeout(pollingRef.current);
       pollingRef.current = null;
     }
     setMobileStatus('Authentication cancelled');
@@ -117,8 +188,9 @@ function App() {
   };
 
   const handleSmartCancel = () => {
+    smartPollingActiveRef.current = false;
     if (smartPollingRef.current) {
-      clearInterval(smartPollingRef.current);
+      clearTimeout(smartPollingRef.current);
       smartPollingRef.current = null;
     }
     setSmartStatus('Authentication cancelled');
@@ -148,10 +220,16 @@ function App() {
     }
   };
 
+  const handleIdCardReturn = () => {
+    if (returnUri) {
+      window.location.href = returnUri;
+    }
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'IdCard':
-        return <IdCardTab />;
+        return <IdCardTab handleIdCardReturn={handleIdCardReturn} />;
       case 'MobileId':
         return (
           <MobileIdTab
@@ -190,8 +268,10 @@ function App() {
   // Clear polling when tab changes
   React.useEffect(() => {
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-      if (smartPollingRef.current) clearInterval(smartPollingRef.current);
+      mobilePollingActiveRef.current = false;
+      smartPollingActiveRef.current = false;
+      if (pollingRef.current) clearTimeout(pollingRef.current);
+      if (smartPollingRef.current) clearTimeout(smartPollingRef.current);
     };
   }, [activeTab]);
 

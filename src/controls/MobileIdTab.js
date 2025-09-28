@@ -71,8 +71,8 @@ export default function MobileIdTab(props) {
               autoComplete="tel"
             />
           </div>
-          <button className="continue-btn" onClick={handleMobileContinue}>Continue</button>
           <button className="cancel-btn" onClick={handleMobileCancel}>Cancel</button>
+          <button className="continue-btn" onClick={handleMobileContinue}>Continue</button>
         </>
       )}
       {isCancelled && (

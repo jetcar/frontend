@@ -55,8 +55,8 @@ export default function SmartIdTab(props) {
               autoComplete="personal-code"
             />
           </div>
-          <button className="continue-btn" onClick={handleSmartContinue}>Continue</button>
           <button className="cancel-btn" onClick={handleSmartCancel}>Cancel</button>
+          <button className="continue-btn" onClick={handleSmartContinue}>Continue</button>
         </>
       )}
       {isCancelled && (

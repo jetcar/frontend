@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import './App.css';
-import { startMobileId, checkMobileId, startSmartId, checkSmartId } from './api';
+import { startMobileId, checkMobileId, startSmartId, checkSmartId, getWebEidChallenge, sendWebEidAuthToken } from './api';
 import MobileIdTab from './controls/MobileIdTab';
 import SmartIdTab from './controls/SmartIdTab';
 import IdCardTab from './controls/IdCardTab';
 import { getOidcParams } from './utils/oidcParams';
+import * as webeid from './web-eid.js';
 const COUNTRY_LIST = ['Estonia', 'Latvia', 'Lithuania'];
 
 function App() {
@@ -303,6 +304,27 @@ function App() {
       </div>
     </div>
   );
+}
+
+// Add this function to App.js or pass it as a prop to IdCardTab
+export async function handleWebEidLogin() {
+  try {
+    // Dynamically import web-eid.js from public/scripts if available
+
+    //const webeid = await import('web-eid');
+    const lang = navigator.language.substr(0, 2);
+    const { nonce, sessionId } = await getWebEidChallenge();
+    const authToken = await webeid.authenticate(nonce, { lang });
+    const authTokenResult = await sendWebEidAuthToken(authToken, sessionId);
+    if (authTokenResult.redirectUrl) {
+      window.location.href = authTokenResult.redirectUrl;
+    } else {
+      alert(authTokenResult.error || 'Web eID login failed');
+    }
+  } catch (error) {
+    console.log("Authentication failed! Error:", error);
+    alert(error.message || "Web eID authentication failed");
+  }
 }
 
 export default App;

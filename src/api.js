@@ -26,3 +26,32 @@ export async function checkSmartId(sessionId) {
   const res = await fetch(url);
   return res.json();
 }
+
+export async function getWebEidChallenge() {
+  const url = appendOidcParamsToUrl("/idlogin/challenge");
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!resp.ok) throw new Error("GET /idlogin/challenge server error: " + resp.status);
+  const { nonce, sessionId } = await resp.json();
+  return { nonce, sessionId };
+}
+
+export async function sendWebEidAuthToken(authToken, sessionId) {
+  let url = appendOidcParamsToUrl("/idlogin/login");
+  if (sessionId) {
+    const sep = url.includes('?') ? '&' : '?';
+    url += `${sep}sessionId=${encodeURIComponent(sessionId)}`;
+  }
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+      // [csrfHeaderName]: csrfToken
+    },
+    body: JSON.stringify({ authToken })
+  });
+  if (!resp.ok) throw new Error("POST /idlogin/login server error: " + resp.status);
+  return await resp.json();
+}

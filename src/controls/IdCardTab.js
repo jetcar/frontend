@@ -7,8 +7,16 @@ export default function IdCardTab(props) {
   return (
     <div>
       <div>Login with IdCard</div>
-      <button className="continue-btn" onClick={handleIdCardReturn}>Return</button>
-      <button className="continue-btn" id="webeid-auth-button" onClick={handleWebEidLogin}>Continue</button>
+      <button
+        className="continue-btn return-btn"
+        onClick={handleIdCardReturn}
+      >
+        Return
+      </button>
+      <button className="continue-btn" id="webeid-auth-button" onClick={handleWebEidLogin}>
+        Continue
+      </button>
     </div>
   );
 }
+

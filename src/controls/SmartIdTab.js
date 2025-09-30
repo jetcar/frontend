@@ -60,7 +60,12 @@ export default function SmartIdTab(props) {
         </>
       )}
       {isCancelled && (
-        <button className="continue-btn" onClick={handleSmartReturn}>Return</button>
+        <button
+          className="continue-btn return-btn"
+          onClick={handleSmartReturn}
+        >
+          Return
+        </button>
       )}
     </div>
   );

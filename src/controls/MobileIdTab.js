@@ -76,7 +76,12 @@ export default function MobileIdTab(props) {
         </>
       )}
       {isCancelled && (
-        <button className="continue-btn" onClick={handleMobileReturn}>Return</button>
+        <button
+          className="continue-btn return-btn"
+          onClick={handleMobileReturn}
+        >
+          Return
+        </button>
       )}
     </div>
   );

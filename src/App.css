@@ -16,6 +16,7 @@
 
   transition: border-color 0.2s;
 }
+
 .dropdown-box {
   width: 245px;
   min-width: 245px;
@@ -33,28 +34,34 @@
   box-sizing: border-box;
   color: #1976d2;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
 .dropdown-box:focus {
   border-color: #4f8cff;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
 }
 
 .input-box:focus {
   border-color: #4f8cff;
 }
-.continue-btn, .cancel-btn {
-  width: 200px; /* Hardcoded width to ensure both buttons are the same size */
-  margin: 16px 8px; /* Added margin for spacing */
-  padding: 12px 40px; /* Same padding */
+
+.continue-btn,
+.cancel-btn {
+  width: 200px;
+  /* Hardcoded width to ensure both buttons are the same size */
+  margin: 16px 8px;
+  /* Added margin for spacing */
+  padding: 12px 40px;
+  /* Same padding */
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: background 0.2s, transform 0.2s;
 }
 
@@ -130,7 +137,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: background 0.2s, color 0.2s, transform 0.2s;
 }
 
@@ -139,7 +146,7 @@
   background: linear-gradient(90deg, #1976d2 0%, #4f8cff 100%);
   color: #fff;
   transform: scale(1.08);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 
@@ -154,10 +161,17 @@
   font-size: 1.2rem;
 }
 
+.return-btn {
+  background: #fff !important;
+  color: #1976d2 !important;
+  border: 2px solid #1976d2;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

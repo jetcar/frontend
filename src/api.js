@@ -1,8 +1,8 @@
 // API utility for authentication requests
 import { appendOidcParamsToUrl } from './utils/oidcParams';
 
-export async function startMobileId({ country, personalCode, phoneNumber }) {
-  const params = new URLSearchParams({ country, personalCode, phoneNumber });
+export async function startMobileId({ personalCode, phoneNumber, countryCode }) {
+  const params = new URLSearchParams({ personalCode, phoneNumber, countryCode });
   const url = appendOidcParamsToUrl(`/mobileid/start?${params.toString()}`);
   const res = await fetch(url, { method: 'POST' });
   return res.json();

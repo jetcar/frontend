@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import { startMobileId, checkMobileId, startSmartId, checkSmartId, getWebEidChallenge, sendWebEidAuthToken } from './api';
 import MobileIdTab from './controls/MobileIdTab';
@@ -9,7 +9,8 @@ import * as webeid from './web-eid.js';
 const COUNTRY_LIST = ['Estonia', 'Latvia', 'Lithuania'];
 
 function App() {
-  const [activeTab, setActiveTab] = useState('IdCard');
+  // Load last active tab from localStorage or default to 'IdCard'
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeTab') || 'IdCard');
   const [mobileCountry, setMobileCountry] = useState(COUNTRY_LIST[0]);
   const [mobilePersonalCode, setMobilePersonalCode] = useState('');
   const [mobilePhoneNumber, setMobilePhoneNumber] = useState('');
@@ -47,7 +48,17 @@ function App() {
       setSmartCountry(mobileCountry);
     }
     setActiveTab(tab);
+    localStorage.setItem('activeTab', tab);
   };
+
+  // Reopen last active tab on page load
+  useEffect(() => {
+    const lastTab = localStorage.getItem('activeTab');
+    if (lastTab && lastTab !== activeTab) {
+      setActiveTab(lastTab);
+    }
+    // eslint-disable-next-line
+  }, []);
 
   const scheduleNextMobilePoll = (sessionId) => {
     if (!mobilePollingActiveRef.current) return;
@@ -127,13 +138,13 @@ function App() {
     doSmartPoll(sessionId);
   };
 
-  const handleMobileContinue = async () => {
-    try {
-      const data = await startMobileId({
-        country: mobileCountry,
-        personalCode: mobilePersonalCode,
-        phoneNumber: mobilePhoneNumber
-      });
+  const handleMobileContinue = (params) => {
+    // params: { countryCode, phoneNumber }
+    startMobileId({
+      personalCode: mobilePersonalCode,
+      phoneNumber: params.phoneNumber,
+      countryCode: params.countryCode
+    }).then(data => {
       if (data?.error) {
         setMobileStatus(`Error: ${data.error}`);
         return;
@@ -148,9 +159,9 @@ function App() {
       } else {
         setMobileStatus('Failed to start MobileId authentication.');
       }
-    } catch {
+    }).catch(() => {
       setMobileStatus('Error contacting backend');
-    }
+    });
   };
 
   const handleSmartContinue = async () => {
@@ -328,3 +339,4 @@ export async function handleWebEidLogin() {
 }
 
 export default App;
+

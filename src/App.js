@@ -5,7 +5,7 @@ import MobileIdTab from './controls/MobileIdTab';
 import SmartIdTab from './controls/SmartIdTab';
 import IdCardTab from './controls/IdCardTab';
 import { getOidcParams } from './utils/oidcParams';
-import * as webeid from './web-eid.js';
+import * as webeid from '@web-eid/web-eid-library/web-eid';
 const COUNTRY_LIST = ['Estonia', 'Latvia', 'Lithuania'];
 
 function App() {
